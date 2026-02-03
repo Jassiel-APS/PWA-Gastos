@@ -1,0 +1,63 @@
+{
+  "name": "Gastos Mensuales",
+  "short_name": "Gastos",
+  "description": "Control inteligente de tus finanzas personales",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait",
+  "scope": "./",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHJ4PSI0IiBmaWxsPSIjOGI1Y2Y2Ii8+CjxwYXRoIGQ9Ik0xMiAyQzEzLjEgMiAxNCAyLjkgMTQgNEMxNCA1LjEgMTMuMSA2IDEyIDZDMTAuOSA2IDEwIDUuMSAxMCA0QzEwIDIuOSAxMC45IDIgMTIgMlpNMjEgOVY3TDE1IDFINkM0LjkgMSA0IDEuOSA0IDNWMjFDNCAyMi4xIDQuOSAyMyA2IDIzSDE4QzE5LjEgMjMgMjAgMjIuMSAyMCAyMVY5SDIxWk0xOCA5VjIxSDZWM0gxNFY5SDE4WiIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4K",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHJ4PSI0IiBmaWxsPSIjOGI1Y2Y2Ii8+CjxwYXRoIGQ9Ik0xMiAyQzEzLjEgMiAxNCAyLjkgMTQgNEMxNCA1LjEgMTMuMSA2IDEyIDZDMTAuOSA2IDEwIDUuMSAxMCA0QzEwIDIuOSAxMC45IDIgMTIgMlpNMjEgOVY3TDE1IDFINkM0LjkgMSA0IDEuOSA0IDNWMjFDNCAyMi4xIDQuOSAyMyA2IDIzSDE4QzE5LjEgMjMgMjAgMjIuMSAyMCAyMVY5SDIxWk0xOCA5VjIxSDZWM0gxNFY5SDE4WiIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4K",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjY0MCIgdmlld0JveD0iMCAwIDMyMCA2NDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iNjQwIiByeD0iMjAiIGZpbGw9InVybCgjZ3JhZGllbnQpIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzY2N2VlYTtzdG9wLW9wYWNpdHk6MSIgLz4KPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNzY0YmEyO3N0b3Atb3BhY2l0eToxIiAvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjx0ZXh0IHg9IjE2MCIgeT0iMzIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSIyNCIgZm9udC1mYW1pbHk9IkFyaWFsIj5HYXN0b3MgTWVuc3VhbGVzPC90ZXh0Pgo8L3N2Zz4K",
+      "sizes": "320x640",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Agregar Gasto",
+      "short_name": "Gasto",
+      "description": "Registrar un nuevo gasto",
+      "url": "./index.html#add-expense",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNlZjQ0NDQiLz4KPHA3aCBkPSJNMTksNiBMMTcuODksNy4xNyBMMTUuMyw0LjU4IEwxNi40MSAzLjQ3IEMxNi44IDMuMDggMTcuNDMgMy4wOCAxNy44MiAzLjQ3IEwyMC41MyA2LjE4IEMyMC45MiA2LjU3IDIwLjkyIDcuMiAyMC41MyA3LjU5IEwxOSw2WiBNMTYsOS40TDUsOCBMNSAxMCBMMTEsOTcgTDE3IDkuNDFMMTYsOS40WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cg==",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Ver Historial",
+      "short_name": "Historial",
+      "description": "Consultar transacciones pasadas",
+      "url": "./index.html#history",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiM4YjVjZjYiLz4KPHA7aCBkPSJNMTMuNSw4SDEyVjEzTDE2LjI4LDE1LjU0TDE3LDE0LjMzTDEzLjUsMTIuMjVWOE0xMywzQTksOSAwIDAsMCA0LDEySDFMNC45NiwxNi4wM0w5LDEySDZBNyw3IDAgMCwxIDEzLDVBNyw3IDAgMCwxIDIwLDEyQTcsNyAwIDAsMSAxMywxOUMxMS4wNywxOSA5LjMyLDE4LjIxIDguMDYsMTYuOTRMNi42NCwxOC4zNkM4LjI3LDIwIDEwLjUsMjEgMTMsMjFBOSw5IDAgMCwwIDIyLDEyQTksOSAwIDAsMCAxMywzIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "display_override": ["window-controls-overlay", "standalone"]
+}

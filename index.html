@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gastos Mensuales - PWA</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzhmNWNmNiIvPgo8cGF0aCBkPSJNMTYgOEMxMi42ODYgOCAxMCAxMC42ODYgMTAgMTRWMThDMTAgMjEuMzE0IDEyLjY4NiAyNCAxNiAyNEMxOS4zMTQgMjQgMjIgMjEuMzE0IDIyIDE4VjE0QzIyIDEwLjY4NiAxOS4zMTQgOCAxNiA4WiIgZmlsbD0iI2ZmZmZmZiIvPgo8L3N2Zz4K">
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'shake': 'shake 0.5s ease-in-out',
+                        'bounce-in': 'bounceIn 0.3s ease-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'slide-in-right': 'slideInRight 0.3s ease-out',
+                        'slide-out-left': 'slideOutLeft 0.3s ease-out'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        shake: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-10px)' },
+                            '20%, 40%, 60%, 80%': { transform: 'translateX(10px)' }
+                        },
+                        bounceIn: {
+                            '0%': { transform: 'scale(0.3)', opacity: '0' },
+                            '50%': { transform: 'scale(1.05)' },
+                            '70%': { transform: 'scale(0.9)' },
+                            '100%': { transform: 'scale(1)', opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(100%)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideInRight: {
+                            '0%': { transform: 'translateX(100%)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' }
+                        },
+                        slideOutLeft: {
+                            '0%': { transform: 'translateX(0)', opacity: '1' },
+                            '100%': { transform: 'translateX(-100%)', opacity: '0' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#8b5cf6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gastos Mensuales">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="./manifest.webmanifest">
+    
+    <style>
+        /* Glassmorphism base styles */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark .glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Custom gradient backgrounds */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .dark .gradient-bg {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f172a 100%);
+        }
+        
+        /* Bottom nav notch effect */
+        .nav-bubble {
+            position: absolute;
+            width: 56px;
+            height: 56px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+            z-index: 10;
+        }
+        
+        .nav-bubble::before {
+            content: '';
+            position: absolute;
+            top: 28px;
+            left: -20px;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-radius: 0 0 20px 0;
+            box-shadow: 0 -10px 0 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-bubble::after {
+            content: '';
+            position: absolute;
+            top: 28px;
+            right: -20px;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border-radius: 0 0 0 20px;
+            box-shadow: 0 -10px 0 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Pin input styles */
+        .pin-input {
+            width: 50px;
+            height: 60px;
+            font-size: 24px;
+            text-align: center;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .pin-input:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+        
+        .dark .pin-input {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Remove arrows from number inputs */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+        }
+        
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.5);
+        }
+        
+        /* Tab styles */
+        .tab-active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .tab-inactive {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Toast styles */
+        .toast {
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .toast-success {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        
+        .toast-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .toast-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Modal backdrop */
+        .modal-backdrop {
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white transition-all duration-300 overflow-x-hidden">
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 z-50 flex items-center justify-center gradient-bg">
+        <div class="text-center">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-2xl glass flex items-center justify-center animate-float">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H6C4.9 1 4 1.9 4 3V21C4 22.1 4.9 23 6 23H18C19.1 23 20 22.1 20 21V9H21ZM18 9V21H6V3H14V9H18Z" fill="currentColor"/>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Gastos Mensuales</h2>
+            <div class="w-8 h-1 bg-purple-500 mx-auto rounded-full animate-pulse"></div>
+        </div>
+    </div>
+
+    <!-- Install PWA Banner -->
+    <div id="install-banner" class="fixed top-0 left-0 right-0 z-40 p-4 glass hidden">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded glass flex items-center justify-center">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5,20H19V18H5M19,9H15L13,7H9V9H15V12H9V14H15V17H9V19H13L15,17H19A2,2 0 0,0 21,15V11A2,2 0 0,0 19,9Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-semibold text-sm">Instalar App</p>
+                    <p class="text-xs opacity-80">Agrega a tu pantalla principal</p>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <button id="install-dismiss" class="px-3 py-1 text-sm opacity-80 hover:opacity-100 transition-opacity">Cancelar</button>
+                <button id="install-app" class="px-4 py-1 bg-purple-500 rounded-lg text-sm hover:bg-purple-600 transition-colors">Instalar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-20 right-4 z-40 space-y-2"></div>
+
+    <!-- Tour Overlay -->
+    <div id="tour-overlay" class="fixed inset-0 z-30 bg-black bg-opacity-50 backdrop-blur-sm hidden">
+        <div class="absolute inset-0" id="tour-highlight"></div>
+        <div id="tour-content" class="absolute bottom-20 left-4 right-4 p-6 glass rounded-2xl shadow-2xl animate-slide-up">
+            <h3 id="tour-title" class="text-xl font-bold mb-2"></h3>
+            <p id="tour-text" class="text-gray-300 mb-4"></p>
+            <div class="flex justify-between items-center">
+                <button id="tour-skip" class="px-4 py-2 text-purple-300 hover:text-white transition-colors">Saltar</button>
+                <div class="flex space-x-2">
+                    <button id="tour-prev" class="px-4 py-2 glass rounded-lg hover:bg-white/20 transition-colors hidden">Atrás</button>
+                    <button id="tour-next" class="px-6 py-2 bg-purple-500 rounded-lg hover:bg-purple-600 transition-colors">Siguiente</button>
+                </div>
+            </div>
+            <div class="flex justify-center mt-4 space-x-2">
+                <div class="tour-dot w-2 h-2 rounded-full bg-white/30"></div>
+                <div class="tour-dot w-2 h-2 rounded-full bg-white/30"></div>
+                <div class="tour-dot w-2 h-2 rounded-full bg-white/30"></div>
+                <div class="tour-dot w-2 h-2 rounded-full bg-white/30"></div>
+                <div class="tour-dot w-2 h-2 rounded-full bg-white/30"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app-container" class="min-h-screen pb-24">
+        
+        <!-- Auth Screens -->
+        <div id="auth-container" class="min-h-screen">
+            
+            <!-- Welcome Screen -->
+            <div id="welcome-screen" class="min-h-screen flex flex-col items-center justify-center p-6">
+                <div class="text-center mb-8">
+                    <div class="w-24 h-24 mx-auto mb-6 rounded-3xl glass flex items-center justify-center animate-float">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H6C4.9 1 4 1.9 4 3V21C4 22.1 4.9 23 6 23H18C19.1 23 20 22.1 20 21V9H21ZM18 9V21H6V3H14V9H18Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold mb-2">Gastos Mensuales</h1>
+                    <p class="text-gray-300 text-lg">Control inteligente de tus finanzas</p>
+                </div>
+                
+                <div class="w-full max-w-sm space-y-4">
+                    <button id="login-btn" class="w-full py-4 glass rounded-2xl font-semibold text-lg hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
+                        Iniciar Sesión
+                    </button>
+                    <button id="register-btn" class="w-full py-4 bg-purple-500 rounded-2xl font-semibold text-lg hover:bg-purple-600 transition-all duration-300 transform hover:scale-105">
+                        Crear Cuenta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Register Screen -->
+            <div id="register-screen" class="min-h-screen p-6 hidden">
+                <div class="max-w-md mx-auto mt-8">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl font-bold mb-2">Crear Cuenta</h2>
+                        <p class="text-gray-300">Completa tus datos para comenzar</p>
+                    </div>
+                    
+                    <form id="register-form" class="space-y-6">
+                        <div>
+                            <input type="text" id="register-name" placeholder="Nombre completo" required
+                                class="w-full p-4 glass rounded-2xl placeholder-gray-400 text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+                        </div>
+                        <div>
+                            <input type="tel" id="register-phone" placeholder="Teléfono" required
+                                class="w-full p-4 glass rounded-2xl placeholder-gray-400 text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+                        </div>
+                        <div>
+                            <input type="email" id="register-email" placeholder="Gmail" required
+                                class="w-full p-4 glass rounded-2xl placeholder-gray-400 text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+                        </div>
+                        <div>
+                            <input type="password" id="register-password" placeholder="Contraseña (mínimo 6 caracteres)" required
+                                class="w-full p-4 glass rounded-2xl placeholder-gray-400 text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+                        </div>
+                        
+                        <button type="submit" class="w-full py-4 bg-purple-500 rounded-2xl font-semibold text-lg hover:bg-purple-600 transition-all duration-300 transform hover:scale-105">
+                            Crear Cuenta
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-6">
+                        <button id="back-to-welcome" class="text-purple-300 hover:text-white transition-colors">
+                            ← Volver
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Screen -->
+            <div id="login-screen" class="min-h-screen p-6 hidden">
+                <div class="max-w-md mx-auto mt-8">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl font-bold mb-2">Iniciar Sesión</h2>
+                        <p class="text-gray-300">Ingresa tus credenciales</p>
+                    </div>
+                    
+                    <form id="login-form" class="space-y-6">
+                        <div>
+                            <input type="email" id="login-email" placeholder="Gmail" required
+                                class="w-full p-4 glass rounded-2xl placeholder-gray-400 text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+                        </div>
+                        <div>
+                            <input type="password" id="login-password" placeholder="Contraseña" required
+                                class="w-full p-4 glass rounded-2xl placeholder-gray-400 text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+                        </div>
+                        
+                        <button type="submit" class="w-full py-4 bg-purple-500 rounded-2xl font-semibold text-lg hover:bg-purple-600 transition-all duration-300 transform hover:scale-105">
+                            Iniciar Sesión
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-6">
+                        <button id="back-to-welcome-login" class="text-purple-300 hover:text-white transition-colors">
+                            ← Volver
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PIN Screen -->
+            <div id="pin-screen" class="min-h-screen p-6 hidden">
+                <div class="max-w-md mx-auto mt-16">
+                    <div class="text-center mb-12">
+                        <div class="w-20 h-20 mx-auto mb-4 rounded-2xl glass flex items-center justify-center">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <h2 id="pin-title" class="text-2xl font-bold mb-2">Ingresa tu PIN</h2>
+                        <p id="pin-subtitle" class="text-gray-300">Ingresa tu PIN de 4 dígitos</p>
+                    </div>
+                    
+                    <div id="pin-entry-section" class="mb-8">
+                        <div class="flex justify-center space-x-3">
+                            <input type="number" class="pin-input" maxlength="1" id="pin-1">
+                            <input type="number" class="pin-input" maxlength="1" id="pin-2">
+                            <input type="number" class="pin-input" maxlength="1" id="pin-3">
+                            <input type="number" class="pin-input" maxlength="1" id="pin-4">
+                        </div>
+                    </div>
+                    
+                    <div id="pin-confirm-section" class="hidden">
+                        <p class="text-center text-gray-300 mb-4">Confirma tu PIN</p>
+                        <div class="flex justify-center space-x-3 mb-8">
+                            <input type="number" class="pin-input" maxlength="1" id="pin-confirm-1">
+                            <input type="number" class="pin-input" maxlength="1" id="pin-confirm-2">
+                            <input type="number" class="pin-input" maxlength="1" id="pin-confirm-3">
+                            <input type="number" class="pin-input" maxlength="1" id="pin-confirm-4">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App Content -->
+        <div id="main-app" class="hidden">
+            
+            <!-- Home Screen -->
+            <div id="home-screen" class="p-4 space-y-6">
+                <header class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-xl glass flex items-center justify-center overflow-hidden">
+                            <img id="user-avatar" src="" alt="Avatar" class="w-full h-full rounded-xl object-cover hidden">
+                            <svg id="default-avatar" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-gray-300 text-sm">Hola,</p>
+                            <p id="user-name-display" class="font-bold text-lg">Usuario</p>
+                        </div>
+                    </div>
+                    <button id="theme-toggle" class="p-3 glass rounded-xl hover:bg-white/20 transition-colors">
+                        <svg id="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8M12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31L23.31,12L20,8.69Z" fill="currentColor"/>
+                        </svg>
+                        <svg id="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="hidden">
+                            <path d="M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4L13.5,1L14.56,4L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,10.95L18.5,9L19.19,10.95L21.25,11M18.97,15.95C19.8,15.87 20.69,17.05 20.16,17.8C19.84,18.25 19.5,18.67 19.08,19.07C15.17,23 8.84,23 4.94,19.07C1.03,15.17 1.03,8.83 4.94,4.93C5.34,4.53 5.76,4.17 6.21,3.85C6.96,3.32 8.14,4.21 8.06,5.04C7.79,7.9 8.75,10.87 10.95,13.06C13.14,15.26 16.1,16.22 18.97,15.95M17.33,17.97C14.5,17.81 11.7,16.64 9.53,14.5C7.36,12.31 6.2,9.5 6.04,6.68C3.23,9.82 3.34,14.4 6.35,17.41C9.37,20.43 14,20.54 17.33,17.97Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </header>
+
+                <!-- Dashboard Cards -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="glass rounded-2xl p-4">
+                        <p class="text-gray-300 text-sm mb-1">Gastado este mes</p>
+                        <p id="total-spent" class="text-2xl font-bold text-red-400">$0</p>
+                    </div>
+                    <div class="glass rounded-2xl p-4">
+                        <p class="text-gray-300 text-sm mb-1">Ingresos esperados</p>
+                        <p id="total-income" class="text-2xl font-bold text-green-400">$0</p>
+                    </div>
+                    <div class="glass rounded-2xl p-4">
+                        <p class="text-gray-300 text-sm mb-1">Deuda tarjetas</p>
+                        <p id="total-debt" class="text-2xl font-bold text-orange-400">$0</p>
+                    </div>
+                    <div class="glass rounded-2xl p-4">
+                        <p class="text-gray-300 text-sm mb-1">Disponible total</p>
+                        <p id="total-available" class="text-2xl font-bold text-blue-400">$0</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div id="quick-actions" class="glass rounded-2xl p-6 mb-6">
+                    <h3 class="font-bold text-lg mb-4">Acciones rápidas</h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <button id="add-expense-btn" class="flex flex-col items-center p-4 glass rounded-xl hover:bg-white/20 transition-colors">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-2">
+                                <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/>
+                            </svg>
+                            <span class="text-sm">Gasto</span>
+                        </button>
+                        <button id="add-income-btn" class="flex flex-col items-center p-4 glass rounded-xl hover:bg-white/20 transition-colors">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-2">
+                                <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M17,13V11H13V7H11V11H7V13H11V17H13V13H17Z" fill="currentColor"/>
+                            </svg>
+                            <span class="text-sm">Ingreso</span>
+                        </button>
+                        <button id="add-card-transaction-btn" class="flex flex-col items-center p-4 glass rounded-xl hover:bg-white/20 transition-colors">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-2">
+                                <path d="M20,8H4V6H20M20,18H4V12H20M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.11,4 20,4Z" fill="currentColor"/>
+                            </svg>
+                            <span class="text-sm">Tarjeta</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div id="recent-section" class="glass rounded-2xl p-6">
+                    <h3 class="font-bold text-lg mb-4">Últimas transacciones</h3>
+                    <div id="recent-transactions" class="space-y-3">
+                        <!-- Transactions will be dynamically loaded -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expenses Screen -->
+            <div id="expenses-screen" class="p-4 hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold">Gastos</h2>
+                    <button id="add-expense-main" class="p-3 bg-purple-500 rounded-xl hover:bg-purple-600 transition-colors">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Expense Tabs -->
+                <div class="flex mb-6 glass rounded-2xl p-1">
+                    <button id="fixed-expenses-tab" class="flex-1 py-3 px-4 rounded-xl font-semibold transition-colors tab-active">
+                        Fijos
+                    </button>
+                    <button id="variable-expenses-tab" class="flex-1 py-3 px-4 rounded-xl font-semibold transition-colors tab-inactive">
+                        Variables
+                    </button>
+                </div>
+
+                <!-- Expenses List -->
+                <div id="expenses-list" class="space-y-4">
+                    <!-- Expenses will be dynamically loaded -->
+                </div>
+            </div>
+
+            <!-- History Screen -->
+            <div id="history-screen" class="p-4 hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold">Historial</h2>
+                    <button id="history-filters" class="p-3 glass rounded-xl hover:bg-white/20 transition-colors">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- History List -->
+                <div id="history-list" class="space-y-4">
+                    <!-- History items will be dynamically loaded -->
+                </div>
+            </div>
+
+            <!-- Profile Screen -->
+            <div id="profile-screen" class="p-4 hidden">
+                <div class="text-center mb-8">
+                    <div class="relative inline-block mb-4">
+                        <div class="w-24 h-24 rounded-full glass flex items-center justify-center overflow-hidden">
+                            <img id="profile-avatar" src="" alt="Avatar" class="w-full h-full object-cover hidden">
+                            <svg id="profile-default-avatar" width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <button id="change-photo" class="absolute bottom-0 right-0 p-2 bg-purple-500 rounded-full hover:bg-purple-600 transition-colors">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9,12C9,13.38 9.5,14.44 10.5,15.17L20.54,4.17L19.83,3.46C19.64,3.27 19.32,3.27 19.13,3.46L18.42,4.17L15.83,1.58C15.64,1.39 15.32,1.39 15.13,1.58L3.46,13.25C3.27,13.44 3.27,13.76 3.46,13.95L4.17,14.66L7.58,18.07C7.77,18.26 8.09,18.26 8.28,18.07L9,17.35C9.73,16.62 10.41,15.74 11,14.76C10.38,13.5 9,12 9,12Z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                        <input type="file" id="photo-input" class="hidden" accept="image/*">
+                    </div>
+                    <h2 id="profile-name" class="text-2xl font-bold mb-2">Usuario</h2>
+                    <p id="profile-email" class="text-gray-300">usuario@email.com</p>
+                </div>
+
+                <!-- Profile Options -->
+                <div class="space-y-4">
+                    <button id="edit-profile" class="w-full p-4 glass rounded-2xl flex items-center justify-between hover:bg-white/20 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" fill="currentColor"/>
+                            </svg>
+                            <span>Editar perfil</span>
+                        </div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+
+                    <button id="change-pin" class="w-full p-4 glass rounded-2xl flex items-center justify-between hover:bg-white/20 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" fill="currentColor"/>
+                            </svg>
+                            <span>Cambiar PIN</span>
+                        </div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+
+                    <button id="settings" class="w-full p-4 glass rounded-2xl flex items-center justify-between hover:bg-white/20 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" fill="currentColor"/>
+                            </svg>
+                            <span>Configuración</span>
+                        </div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+
+                    <button id="logout" class="w-full p-4 bg-red-500/20 border border-red-500/30 rounded-2xl flex items-center justify-center space-x-3 hover:bg-red-500/30 transition-colors">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z" fill="currentColor"/>
+                        </svg>
+                        <span class="text-red-400">Cerrar sesión</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div id="bottom-nav" class="fixed bottom-4 left-4 right-4 z-20 hidden">
+        <div class="glass rounded-full px-6 py-3 flex items-center justify-around shadow-2xl relative">
+            <button class="nav-item relative p-3 rounded-full transition-all duration-300" data-screen="home">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" fill="currentColor"/>
+                </svg>
+            </button>
+            <button class="nav-item relative p-3 rounded-full transition-all duration-300" data-screen="history">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.5,8H12V13L16.28,15.54L17,14.33L13.5,12.25V8M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3" fill="currentColor"/>
+                </svg>
+            </button>
+            <button class="nav-item relative p-3 rounded-full transition-all duration-300" data-screen="profile">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" fill="currentColor"/>
+                </svg>
+            </button>
+            
+            <!-- Floating bubble indicator -->
+            <div class="nav-bubble">
+                <div class="w-full h-full rounded-full flex items-center justify-center">
+                    <svg id="bubble-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" fill="white"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals Container -->
+    <div id="modals-container"></div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(error => console.log('SW registration failed'));
+            });
+        }
+    </script>
+</body>
+</html>
