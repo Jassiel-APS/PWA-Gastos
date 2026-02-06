@@ -42,6 +42,14 @@ class GastosApp {
         document.getElementById('register-form').addEventListener('submit', (e) => this.handleRegister(e));
         document.getElementById('login-form').addEventListener('submit', (e) => this.handleLogin(e));
         
+        // Password strength and visibility (register)
+        const toggleBtns = document.querySelectorAll('.toggle-register-password');
+        const pwdInput = document.getElementById('register-password');
+        const pwdConfirmInput = document.getElementById('register-password-confirm');
+        if (toggleBtns && toggleBtns.length) toggleBtns.forEach(b => b.addEventListener('click', () => this.toggleRegisterPasswordVisibility()));
+        if (pwdInput) pwdInput.addEventListener('input', (e) => this.updatePasswordStrength(e.target.value));
+        if (pwdConfirmInput) pwdConfirmInput.addEventListener('input', () => this.updatePasswordStrength(pwdInput.value));
+        
         // PIN inputs
         this.initPinInputs();
         
@@ -126,6 +134,13 @@ class GastosApp {
         const phone = document.getElementById('register-phone').value;
         const email = document.getElementById('register-email').value;
         const password = document.getElementById('register-password').value;
+        const passwordConfirm = document.getElementById('register-password-confirm') ? document.getElementById('register-password-confirm').value : '';
+        
+        // Check confirm
+        if (password !== passwordConfirm) {
+            this.showToast('Las contraseñas no coinciden', 'error');
+            return;
+        }
         
         if (password.length < 6) {
             this.showToast('La contraseña debe tener al menos 6 caracteres', 'error');
@@ -306,6 +321,67 @@ class GastosApp {
         }
     }
 
+    // ===========================
+    // PASSWORD STRENGTH / VISIBILITY (Register)
+    // ===========================
+    updatePasswordStrength(pwd) {
+        const bar = document.getElementById('password-strength-bar');
+        const text = document.getElementById('password-strength-text');
+        if (!bar || !text) return;
+
+        let score = 0;
+        if (pwd.length >= 6) score += 1;
+        if (pwd.length >= 8) score += 1;
+        if (/[A-Z]/.test(pwd)) score += 1;
+        if (/[0-9]/.test(pwd)) score += 1;
+        if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+
+        // Map score (0-5) to width and color
+        const pct = Math.min(100, Math.round((score / 5) * 100));
+        bar.style.width = pct + '%';
+
+        if (score <= 1) {
+            bar.style.background = 'linear-gradient(90deg,#ef4444,#f97316)';
+            text.textContent = 'Muy débil';
+        } else if (score === 2) {
+            bar.style.background = 'linear-gradient(90deg,#f97316,#f59e0b)';
+            text.textContent = 'Débil';
+        } else if (score === 3) {
+            bar.style.background = 'linear-gradient(90deg,#f59e0b,#fbbf24)';
+            text.textContent = 'Medio';
+        } else if (score === 4) {
+            bar.style.background = 'linear-gradient(90deg,#10b981,#059669)';
+            text.textContent = 'Bueno';
+        } else {
+            bar.style.background = 'linear-gradient(90deg,#059669,#047857)';
+            text.textContent = 'Fuerte';
+        }
+    }
+
+    toggleRegisterPasswordVisibility() {
+        const pwd = document.getElementById('register-password');
+        const pwdConfirm = document.getElementById('register-password-confirm');
+        const eyeOpens = document.querySelectorAll('.eye-open-icon');
+        const eyeCloseds = document.querySelectorAll('.eye-closed-icon');
+
+        if (!pwd) return;
+
+        const makeText = (el) => { if (el) el.type = 'text'; };
+        const makePassword = (el) => { if (el) el.type = 'password'; };
+
+        if (pwd.type === 'password') {
+            makeText(pwd);
+            makeText(pwdConfirm);
+            eyeOpens.forEach(el => el.classList.add('hidden'));
+            eyeCloseds.forEach(el => el.classList.remove('hidden'));
+        } else {
+            makePassword(pwd);
+            makePassword(pwdConfirm);
+            eyeOpens.forEach(el => el.classList.remove('hidden'));
+            eyeCloseds.forEach(el => el.classList.add('hidden'));
+        }
+    }
+
 
     checkAuth() {
         const session = JSON.parse(localStorage.getItem('gm_session'));
@@ -347,6 +423,15 @@ class GastosApp {
         // Show target screen
         document.getElementById(`${screenId}-screen`).classList.remove('hidden');
         this.currentScreen = screenId;
+
+        // Prevent vertical scroll when PIN screen is active (keep it centered)
+        if (screenId === 'pin') {
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+        }
         
         // Update hash without triggering hashchange
         history.replaceState(null, null, `#${screenId}`);
@@ -403,10 +488,24 @@ class GastosApp {
             }
         });
         
-        // Move bubble
-        const itemWidth = navItems[0].offsetWidth + 16; // including padding
-        const leftPosition = activeIndex * itemWidth + (itemWidth / 2) - 28; // 28 is half bubble width
-        bubble.style.left = `${leftPosition}px`;
+        // Move bubble: position it centered on the active nav item
+        if (navItems[activeIndex]) {
+            const activeItem = navItems[activeIndex];
+            // mark active nav item so its icon can be hidden via CSS
+            navItems.forEach(it => it.classList.remove('nav-active'));
+            activeItem.classList.add('nav-active');
+            // offsetLeft is relative to the nav container (which is positioned relative)
+            const itemCenter = activeItem.offsetLeft + (activeItem.offsetWidth / 2);
+            const bubbleHalf = bubble.offsetWidth / 2 || 28;
+            const leftPosition = Math.round(itemCenter - bubbleHalf);
+            bubble.style.left = `${leftPosition}px`;
+            // quick pop animation
+            bubble.classList.remove('animate-pop');
+            // force reflow to restart animation
+            void bubble.offsetWidth;
+            bubble.classList.add('animate-pop');
+            setTimeout(() => bubble.classList.remove('animate-pop'), 420);
+        }
         
         // Update bubble icon
         const icons = {
@@ -716,6 +815,26 @@ class GastosApp {
             document.getElementById('profile-name').textContent = userData.name;
             document.getElementById('profile-email').textContent = userData.email;
         }
+        // Initialize install banner toggle state
+        const installToggle = document.getElementById('install-banner-toggle');
+        if (installToggle) {
+            const dismissed = localStorage.getItem('gm_install_dismissed');
+            // If dismissed flag exists, toggle should be unchecked (don't show banner)
+            installToggle.checked = !dismissed;
+            installToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    // user wants to see the banner -> remove dismissed flag
+                    localStorage.removeItem('gm_install_dismissed');
+                    this.showToast('Se mostrará la sugerencia de instalación', 'success');
+                } else {
+                    localStorage.setItem('gm_install_dismissed', '1');
+                    this.showToast('Sugerencia de instalación desactivada', 'info');
+                    // hide banner immediately if visible
+                    const el = document.getElementById('install-banner');
+                    if (el) el.classList.add('hidden');
+                }
+            });
+        }
     }
 
     handlePhotoChange(e) {
@@ -1008,7 +1127,11 @@ class GastosApp {
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             this.deferredPrompt = e;
-            document.getElementById('install-banner').classList.remove('hidden');
+            // Only show install banner if the user hasn't dismissed it before
+            const dismissed = localStorage.getItem('gm_install_dismissed');
+            if (!dismissed) {
+                document.getElementById('install-banner').classList.remove('hidden');
+            }
         });
         
         // Installed
@@ -1025,14 +1148,24 @@ class GastosApp {
             this.deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
                     console.log('User accepted PWA install');
+                    // if user accepted, clear the dismissed flag so banner won't reappear
+                    localStorage.removeItem('gm_install_dismissed');
                 }
                 this.deferredPrompt = null;
+                // hide banner regardless of choice
+                const el = document.getElementById('install-banner');
+                if (el) el.classList.add('hidden');
             });
         }
     }
 
     dismissInstallBanner() {
         document.getElementById('install-banner').classList.add('hidden');
+        try {
+            localStorage.setItem('gm_install_dismissed', '1');
+        } catch (e) {
+            console.warn('Could not persist install dismissal:', e);
+        }
     }
 
     // ===========================

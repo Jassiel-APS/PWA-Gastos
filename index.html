@@ -98,37 +98,55 @@
             height: 56px;
             background: #8b5cf6;
             border-radius: 50%;
-            top: -28px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: -8px; /* lowered so bubble sits closer to nav */
+            left: 0; /* will be positioned by JS */
+            transform: none; /* JS will position precisely */
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 8px 22px rgba(139, 92, 246, 0.28);
             z-index: 10;
         }
-        
-        .nav-bubble::before {
-            content: '';
-            position: absolute;
-            top: 28px;
-            left: -20px;
-            width: 20px;
-            height: 20px;
-            background: transparent;
-            border-radius: 0 0 20px 0;
-            box-shadow: 0 -10px 0 0 rgba(255, 255, 255, 0.1);
+
+        /* Hide underlying nav icon when its item is active (bubble over it) */
+        .nav-item svg {
+            transition: opacity 220ms ease, transform 220ms ease;
+            will-change: opacity, transform;
+        }
+
+        .nav-item.nav-active svg {
+            opacity: 0;
+            transform: scale(0.7);
+        }
+
+        /* Bubble pop animation */
+        .nav-bubble.animate-pop {
+            animation: bubblePop 360ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes bubblePop {
+            0% { transform: scale(0.7) translateY(0); }
+            60% { transform: scale(1.06) translateY(-4px); }
+            100% { transform: scale(1) translateY(0); }
         }
         
+        
+        /* subtle rounded dashes under the bubble for a cleaner look */
+        .nav-bubble::before,
         .nav-bubble::after {
             content: '';
             position: absolute;
-            top: 28px;
-            right: -20px;
-            width: 20px;
-            height: 20px;
-            background: transparent;
-            border-radius: 0 0 0 20px;
-            box-shadow: 0 -10px 0 0 rgba(255, 255, 255, 0.1);
+            top: 70%; /* place near the bottom of the bubble */
+            width: 22px;
+            height: 6px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 6px;
+            filter: blur(3px);
+            transform: translateY(6px);
+            z-index: 2; /* keep subtle overlay above nav background but below bubble center */
+            opacity: 0.9;
         }
+
+        .nav-bubble::before { left: 6px; }
+        .nav-bubble::after { right: 6px; }
         
         /* Pin input styles */
         .pin-input {
@@ -284,10 +302,10 @@
     </div>
 
     <!-- Main App Container -->
-    <div id="app-container" class="min-h-screen pb-24">
+    <div id="app-container" class="min-h-screen pb-24 flex flex-col">
         
         <!-- Auth Screens -->
-        <div id="auth-container" class="min-h-screen">
+        <div id="auth-container" class="min-h-screen flex-1">
             
             <!-- Welcome Screen -->
             <div id="welcome-screen" class="min-h-screen flex flex-col items-center justify-center p-6">
@@ -313,13 +331,13 @@
 
             <!-- Register Screen -->
             <div id="register-screen" class="min-h-screen p-6 hidden">
-                <div class="max-w-md mx-auto mt-8">
-                    <div class="text-center mb-8">
+                <div class="max-w-md mx-auto h-full flex flex-col justify-center items-center px-4">
+                    <div class="text-center mb-6 w-full">
                         <h2 class="text-2xl font-bold mb-2">Crear Cuenta</h2>
                         <p class="text-gray-300">Completa tus datos para comenzar</p>
                     </div>
                     
-                    <form id="register-form" class="space-y-6">
+                    <form id="register-form" class="space-y-6 w-full max-w-sm">
                         <div>
                             <input type="text" id="register-name" placeholder="Nombre completo" required
                                 class="w-full p-4 glass rounded-2xl placeholder-gray-400 text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all">
@@ -332,11 +350,39 @@
                             <input type="email" id="register-email" placeholder="Gmail" required
                                 class="w-full p-4 glass rounded-2xl placeholder-gray-400 text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all">
                         </div>
-                        <div>
+                        <div class="relative">
                             <input type="password" id="register-password" placeholder="Contraseña (mínimo 6 caracteres)" required
                                 class="w-full p-4 glass rounded-2xl placeholder-gray-400 text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+                            <button type="button" class="toggle-register-password absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300 opacity-80 hover:opacity-100 flex items-center justify-center h-10 w-10">
+                                <svg class="eye-open-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" fill="currentColor"/>
+                                </svg>
+                                <svg class="eye-closed-icon hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 6a9.77 9.77 0 0 1 7.0 2.9L22 7l-2.8 2.8A9.77 9.77 0 0 1 12 18a9.77 9.77 0 0 1-7.0-2.9L2 17l2.8-2.8A9.77 9.77 0 0 1 12 6m0 3a3 3 0 0 0-3 3c0 .6.2 1.1.5 1.5L6.2 16.8A7.77 7.77 0 0 0 4 12c1.7-3.9 6-7 11-7 1.8 0 3.5.3 5 .9L19.5 8.4C18.1 7.5 15.2 6 12 6z" fill="currentColor"/>
+                                </svg>
+                            </button>
                         </div>
-                        
+
+                        <div class="flex items-center space-x-3">
+                            <div id="password-strength" class="h-2 bg-white/10 rounded-full w-full overflow-hidden">
+                                <div id="password-strength-bar" class="h-full w-0 bg-red-400 rounded-full transition-all"></div>
+                            </div>
+                            <div id="password-strength-text" class="text-sm text-gray-300 w-28 text-right">Muy débil</div>
+                        </div>
+
+                        <div class="relative">
+                            <input type="password" id="register-password-confirm" placeholder="Confirmar contraseña" required
+                                class="w-full mt-3 p-4 glass rounded-2xl placeholder-gray-400 text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+                            <button type="button" class="toggle-register-password absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300 opacity-80 hover:opacity-100 flex items-center justify-center h-10 w-10">
+                                <svg class="eye-open-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" fill="currentColor"/>
+                                </svg>
+                                <svg class="eye-closed-icon hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 6a9.77 9.77 0 0 1 7.0 2.9L22 7l-2.8 2.8A9.77 9.77 0 0 1 12 18a9.77 9.77 0 0 1-7.0-2.9L2 17l2.8-2.8A9.77 9.77 0 0 1 12 6m0 3a3 3 0 0 0-3 3c0 .6.2 1.1.5 1.5L6.2 16.8A7.77 7.77 0 0 0 4 12c1.7-3.9 6-7 11-7 1.8 0 3.5.3 5 .9L19.5 8.4C18.1 7.5 15.2 6 12 6z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </div>
+
                         <button type="submit" class="w-full py-4 bg-purple-500 rounded-2xl font-semibold text-lg hover:bg-purple-600 transition-all duration-300 transform hover:scale-105">
                             Crear Cuenta
                         </button>
@@ -382,8 +428,8 @@
             </div>
 
             <!-- PIN Screen -->
-            <div id="pin-screen" class="min-h-screen p-6 hidden">
-                <div class="max-w-md mx-auto mt-16">
+            <div id="pin-screen" class="fixed inset-0 p-6 hidden flex items-center justify-center z-30">
+                <div class="max-w-md w-full">
                     <div class="text-center mb-12">
                         <div class="w-20 h-20 mx-auto mb-4 rounded-2xl glass flex items-center justify-center">
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -600,6 +646,18 @@
                             <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" fill="currentColor"/>
                         </svg>
                     </button>
+
+                    <div id="install-toggle-row" class="w-full p-4 glass rounded-2xl flex items-center justify-between hover:bg-white/10 transition-colors">
+                        <div class="text-left">
+                            <p class="font-medium">Mostrar sugerencia de instalación</p>
+                            <p class="text-sm text-gray-400">Mostrar el banner de "Instalar App" al entrar</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input id="install-banner-toggle" type="checkbox" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 rounded-full peer-focus:ring-2 peer-focus:ring-purple-300 dark:bg-gray-700 peer-checked:bg-purple-500 relative transition-colors"></div>
+                            <span class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-5"></span>
+                        </label>
+                    </div>
 
                     <button id="logout" class="w-full p-4 bg-red-500/20 border border-red-500/30 rounded-2xl flex items-center justify-center space-x-3 hover:bg-red-500/30 transition-colors">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
